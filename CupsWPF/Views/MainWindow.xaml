@@ -24,6 +24,18 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Button Command="{Binding IniciarCommand}" Margin="10" FontSize="20" Grid.Column="1" Grid.ColumnSpan="2" Content="Iniciar Nuevo Juego"></Button>
+        <Button Command="{Binding IACommand}" Margin="10" FontSize="20" Grid.Column="3" Content="Autoresolver">
+            <Button.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="IsEnabled" Value="True"></Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IACorriendo}" Value="True">
+                            <Setter Property="IsEnabled" Value="False"></Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Resources>
+        </Button>
         
         <!-- TUBO 1-->
         <Grid Margin="10" Grid.Row="1">
