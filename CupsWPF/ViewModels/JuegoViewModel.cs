@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace CupsWPF.ViewModels
 {
@@ -26,12 +27,42 @@ namespace CupsWPF.ViewModels
         public ICommand SeleccionTubo8Command { get; set; }
 
         // Habilita o deshabilita el enable de cada boton seleccionar
+
+        Dispatcher _dis;
+
         private bool _haGanado = true;
         public bool HaGanado
         {
             get { return _haGanado; }
             set { _haGanado = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HaGanado))); }
         }
+
+        private int _selectMovimiento;
+
+        public int SelectMovimiento
+        {
+            get { return _selectMovimiento; }
+            set { _selectMovimiento = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectMovimiento))); }
+        }
+
+        private ObservableCollection<Registro> _registros = new ObservableCollection<Registro>();
+        public ObservableCollection<Registro> Registros 
+        {
+            get { return _registros; }
+            set 
+            {
+                _registros = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Registros)));
+            }
+        }
+
+        private int _cantidadMovimientos;
+
+        public int CantidadMovimientos
+        {
+            get { return _cantidadMovimientos; }
+            set { _cantidadMovimientos = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CantidadMovimientos))); }
+        }
+
 
 
         private bool _iaCorriendo = false;
@@ -146,6 +177,8 @@ namespace CupsWPF.ViewModels
         //Se invoca cuando se le presiona el boton Iniciar Juego
         public void Inicio()
         {
+            Registros.Clear();
+            CantidadMovimientos = 0;
             HaGanado = false; //Habilita los enable de los botones Seleccionar
             Tubo1 = new ObservableCollection<int> { 0, 0, 0, 0 };
             Tubo2 = new ObservableCollection<int> { 0, 0, 0, 0 };
@@ -357,6 +390,14 @@ namespace CupsWPF.ViewModels
                                 //Coloca el index a colocar los colores
                                 int j = 4 - tuboTransferir[2];
 
+                                Registros.Add(new Registro
+                                {
+                                    Mensaje = $"Movimiento del tubo {index + 1} al tubo {indice + 1}",
+                                    IDColor = ColorYCantidad(index)[0]
+                                });
+
+                                SelectMovimiento = Registros.Count - 1;
+
                                 for (int w = 0; w < tuboSeleccion[1]; w++)
                                 {
                                     f--;
@@ -367,7 +408,7 @@ namespace CupsWPF.ViewModels
                                 RegistrarMovimiento(tuboSelec, index);
                                 RegistrarMovimiento(tuboTrans, indice);
                                 tuboSeleccionado[index] = false;
-
+                                CantidadMovimientos++;
                                 if (VerificarGanada())
                                 {
                                     HaGanado = true;
@@ -383,6 +424,15 @@ namespace CupsWPF.ViewModels
                                 int f = tuboSelec.Length - tuboSeleccion[2];
 
                                 int j = 4 - tuboTransferir[2];
+
+                                Registros.Add(new Registro
+                                {
+                                    Mensaje = $"Movimiento del tubo {index + 1} al tubo {indice + 1}",
+                                    IDColor = ColorYCantidad(index)[0]
+                                });
+
+                                SelectMovimiento = Registros.Count - 1;
+
                                 for (int w = 0; w < tuboTransferir[2]; w++)
                                 {
                                     f--;
@@ -393,7 +443,7 @@ namespace CupsWPF.ViewModels
                                 RegistrarMovimiento(tuboSelec, index);
                                 RegistrarMovimiento(tuboTrans, indice);
                                 tuboSeleccionado[index] = false;
-
+                                CantidadMovimientos++;
                                 if (VerificarGanada())
                                 {
                                     HaGanado = true;
@@ -694,6 +744,7 @@ namespace CupsWPF.ViewModels
                 {
                     tecnicaJuntarTubos();
                 }
+
             }
             IACorriendo = false;
         }
@@ -788,61 +839,6 @@ namespace CupsWPF.ViewModels
                         }
                     }
                 }
-
-                //Busca los colores que haya mas
-                //int[,] misColores = new int[6, 2] { { 1, 0 }, { 2, 0 }, { 3, 0 }, { 4, 0 }, { 5, 0 }, { 6, 0 } };
-               /* List<miColor> misColores = new List<miColor>()
-                {
-                new miColor{ Cantidad=0, CantidadTotal=0, ColorID=1, Transparente=0, TuboID=0 },
-                new miColor{ Cantidad=0, CantidadTotal=0, ColorID=2, Transparente=0, TuboID=0 },
-                new miColor{ Cantidad=0, CantidadTotal=0, ColorID=3, Transparente=0, TuboID=0 },
-                new miColor{ Cantidad=0, CantidadTotal=0, ColorID=4, Transparente=0, TuboID=0 },
-                new miColor{ Cantidad=0, CantidadTotal=0, ColorID=5, Transparente=0, TuboID=0 },
-                new miColor{ Cantidad=0, CantidadTotal=0, ColorID=6, Transparente=0, TuboID=0 },
-                };
-                for (int i = 0; i < 8; i++)
-                {
-                    switch (resultadoTotal[i, 0])
-                    {
-                        case 1:
-                            misColores[0].CantidadTotal++;
-                            break;
-                        case 2:
-                            misColores[1].CantidadTotal++;
-                            break;
-                        case 3:
-                            misColores[2].CantidadTotal++;
-                            break;
-                        case 4:
-                            misColores[3].CantidadTotal++;
-                            break;
-                        case 5:
-                            misColores[4].CantidadTotal++;
-                            break;
-                        case 6:
-                            misColores[5].CantidadTotal++;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                List<miColor> misColoresOrdenado = misColores.OrderByDescending(x => x.CantidadTotal).ToList();
-
-                if (misColoresOrdenado[0].CantidadTotal > 1)
-                {
-                    int cantidadMaxima = misColoresOrdenado[0].CantidadTotal;
-                    int colorID = misColoresOrdenado[0].ColorID;
-                    bool[] tubos = SearchTuboByColor(colorID);
-                    for (int i = 0; i < tubos.Length; i++)
-                    {
-                        if (tubos[i])
-                        {
-                            EvaluarSeleccionAI(i, idTubo);
-                            MessageBox.Show("Movimiento " + i);
-                        }
-                    }
-                }*/
             }
         }
 
@@ -852,7 +848,8 @@ namespace CupsWPF.ViewModels
             int[] colorCantidad = { 0, resultadoTotal[0, 0], resultadoTotal[0, 1], resultadoTotal[0, 2] };
             for (int i = 0; i < 8; i++)
             {
-                if (resultadoTotal[i, 1] > colorCantidad[2] && resultadoTotal[i, 0] != 0)
+                if (resultadoTotal[i, 1] > colorCantidad[2] && resultadoTotal[i, 0] != 0 
+                    && colorCantidad[3] + colorCantidad[2] != 4)
                 {
                     colorCantidad[0] = i;
                     colorCantidad[1] = resultadoTotal[i, 0];
@@ -951,7 +948,7 @@ namespace CupsWPF.ViewModels
             return idTubo;
         }
 
-        public async void EvaluarSeleccionAI(int index, int indice)
+        public void EvaluarSeleccionAI(int index, int indice)
         {
             if (index == indice) //deseleccionar tubo
             {
@@ -959,6 +956,7 @@ namespace CupsWPF.ViewModels
             }
             else //transladar
             {
+                
                 //Verfica si es valido
                 int[] tuboSeleccion = ColorYCantidad(index);
                 int[] tuboTransferir = ColorYCantidad(indice);
@@ -983,6 +981,16 @@ namespace CupsWPF.ViewModels
 
                             //Coloca el index a colocar los colores
                             int j = 4 - tuboTransferir[2];
+                            _dis.Invoke(() =>
+                            {
+                                Registros.Add(new Registro
+                                {
+                                    Mensaje = $"Movimiento del tubo {index + 1} al tubo {indice + 1}",
+                                    IDColor = ColorYCantidad(index)[0]
+                                });
+
+                                SelectMovimiento = Registros.Count - 1;
+                            });
 
                             for (int w = 0; w < tuboSeleccion[1]; w++)
                             {
@@ -994,6 +1002,9 @@ namespace CupsWPF.ViewModels
                             RegistrarMovimiento(tuboSelec, index);
                             RegistrarMovimiento(tuboTrans, indice);
                             tuboSeleccionado[index] = false;
+
+
+                            CantidadMovimientos++;
                             Thread.Sleep(1000);
                             if (VerificarGanada())
                             {
@@ -1010,6 +1021,15 @@ namespace CupsWPF.ViewModels
                             int f = tuboSelec.Length - tuboSeleccion[2];
 
                             int j = 4 - tuboTransferir[2];
+                            _dis.Invoke(() =>
+                            {
+                                Registros.Add(new Registro
+                                {
+                                    Mensaje = $"Movimiento del tubo {index + 1} al tubo {indice + 1}",
+                                    IDColor = ColorYCantidad(index)[0]
+                                });
+                                SelectMovimiento = Registros.Count - 1;
+                            });
                             for (int w = 0; w < tuboTransferir[2]; w++)
                             {
                                 f--;
@@ -1020,6 +1040,8 @@ namespace CupsWPF.ViewModels
                             RegistrarMovimiento(tuboSelec, index);
                             RegistrarMovimiento(tuboTrans, indice);
                             tuboSeleccionado[index] = false;
+
+                            CantidadMovimientos++;
                             Thread.Sleep(1000);
                             if (VerificarGanada())
                             {
@@ -1038,6 +1060,7 @@ namespace CupsWPF.ViewModels
 
         public JuegoViewModel()
         {
+            _dis = Dispatcher.CurrentDispatcher;
             IACommand = new RelayCommand(runIA);
             SeleccionTubo1Command = new RelayCommand(SeleccionarTubo1);
             SeleccionTubo2Command = new RelayCommand(SeleccionarTubo2);
@@ -1050,6 +1073,12 @@ namespace CupsWPF.ViewModels
             IniciarCommand = new RelayCommand(Inicio);
         }
 
+    }
+
+    public class Registro
+    {
+        public string Mensaje { get; set; } = "";
+        public int IDColor { get; set; }
     }
 
     class miColor

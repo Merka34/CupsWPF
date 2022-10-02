@@ -6,12 +6,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CupsWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Cups Water IA" Height="450" Width="800" Background="LightBlue">
     <Grid>
         <Grid.DataContext>
             <vm:JuegoViewModel></vm:JuegoViewModel>
         </Grid.DataContext>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
             <ColumnDefinition/>
             <ColumnDefinition/>
             <ColumnDefinition/>
@@ -23,8 +24,17 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Button Command="{Binding IniciarCommand}" Margin="10" FontSize="20" Grid.Column="1" Grid.ColumnSpan="2" Content="Iniciar Nuevo Juego"></Button>
-        <Button Command="{Binding IACommand}" Margin="10" FontSize="20" Grid.Column="3" Content="Autoresolver">
+        <DockPanel Margin="10">
+            <DockPanel.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FontSize" Value="16"></Setter>
+                </Style>
+            </DockPanel.Resources>
+            <TextBlock HorizontalAlignment="Center" DockPanel.Dock="Top" FontSize="25" Text="Movimientos: "></TextBlock>
+            <TextBlock HorizontalAlignment="Center" FontWeight="Bold" FontSize="25" Text="{Binding CantidadMovimientos}"></TextBlock>
+        </DockPanel>
+        <Button Background="DodgerBlue" Foreground="White" BorderBrush="Black" BorderThickness="2" FontSize="25" Command="{Binding IniciarCommand}" Margin="10" Grid.Column="1" Grid.ColumnSpan="2" Content="🎮 Iniciar Juego 🎮"></Button>
+        <Button Background="DarkTurquoise" Foreground="White" BorderBrush="Black" BorderThickness="2" Command="{Binding IACommand}" Margin="10" FontSize="20" Grid.Column="3" Content="Autoresolver">
             <Button.Resources>
                 <Style TargetType="Button">
                     <Setter Property="IsEnabled" Value="True"></Setter>
@@ -1140,5 +1150,49 @@
                 </Button.Resources>
             </Button>
         </Grid>
+        <DockPanel Margin="10"  Grid.RowSpan="4" Grid.Column="4">
+            <TextBlock DockPanel.Dock="Top">Registro de Movimientos</TextBlock>
+            <ListView SelectedIndex="{Binding SelectMovimiento}" ItemsSource="{Binding Registros}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Mensaje}">
+                            <TextBlock.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Padding" Value="10 3"></Setter>
+                                    <Setter Property="Background" Value="White"></Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IDColor}" Value="1">
+                                            <Setter Property="Background" Value="Red"></Setter>
+                                            <Setter Property="Foreground" Value="White"></Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IDColor}" Value="2">
+                                            <Setter Property="Background" Value="Blue"></Setter>
+                                            <Setter Property="Foreground" Value="White"></Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IDColor}" Value="3">
+                                            <Setter Property="Background" Value="Green"></Setter>
+                                            <Setter Property="Foreground" Value="White"></Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IDColor}" Value="4">
+                                            <Setter Property="Background" Value="Yellow"></Setter>
+                                            <Setter Property="Foreground" Value="Black"></Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IDColor}" Value="5">
+                                            <Setter Property="Background" Value="Purple"></Setter>
+                                            <Setter Property="Foreground" Value="White"></Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IDColor}" Value="6">
+                                            <Setter Property="Background" Value="HotPink"></Setter>
+                                            <Setter Property="Foreground" Value="Black"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Resources>
+                        </TextBlock>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </DockPanel>
+        
     </Grid>
 </Window>
